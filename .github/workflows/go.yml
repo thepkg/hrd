@@ -24,6 +24,3 @@ jobs:
 
     - name: Vet
       run: go vet main.go
-
-    - name: golangci-lint
-      uses: golangci/golangci-lint-action@v3
