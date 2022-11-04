@@ -12,7 +12,7 @@ import (
 
 const (
 	realtimeLogBasePath = "https://realtimelog.herokuapp.com:443/"
-	header              = "=======[ HTTP REQUEST DUMP ]======="
+	header              = "===============[ HTTP REQUEST DUMP ]==============="
 )
 
 var (
