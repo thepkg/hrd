@@ -64,31 +64,4 @@ func Dump(w http.ResponseWriter, r *http.Request) {
 	if _, err := fmt.Fprintf(w, "%s \n\n%s", header, dump); err != nil {
 		log.Printf("failed to print header, error: %#v\n", err)
 	}
-
-	// Send HTTP dump to RealtimeLog.
-	logIDs := r.URL.Query()["realtimelogid"]
-	if len(logIDs) == 0 {
-		return
-	}
-	logID := logIDs[0]
-	if err := postToRealtimeLog(logID, string(dump)); err != nil {
-		log.Printf("failed to post to realtimelog, error: %#v\n", err)
-	}
-}
-
-// postToRealtimeLog sends dump to RealtimeLog.
-func postToRealtimeLog(logID string, dump string) error {
-	data := map[string]interface{}{"dump": dump}
-	payload, err := json.Marshal(data)
-	if err != nil {
-		return fmt.Errorf("failed to marshal data, error: %w", err)
-	}
-
-	url := realtimeLogBasePath + logID
-	_, err = http.Post(url, "application/json", bytes.NewBuffer(payload))
-	if err != nil {
-		return fmt.Errorf("failed to send request, error: %w", err)
-	}
-
-	return nil
 }
