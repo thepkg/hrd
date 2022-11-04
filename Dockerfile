@@ -1,7 +1,5 @@
 FROM cn007b/go:1.19-alpine AS build
 
-MAINTAINER V.K. <cn007b@gmail.com>
-
 WORKDIR  /go/src/github.com/cn007b/hrd
 COPY . .
 RUN make build

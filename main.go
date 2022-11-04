@@ -1,3 +1,4 @@
+// Package main represents main entry point for HRD application.
 package main
 
 import (
