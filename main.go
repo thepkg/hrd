@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,21 +9,23 @@ import (
 )
 
 const (
-	realtimeLogBasePath = "https://realtimelog.herokuapp.com:443/"
-	header              = "===============[ HTTP REQUEST DUMP ]==============="
+	// header holds header delimiter, just to separate output data.
+	header = "===============[ HTTP REQUEST ]==============="
 )
 
 var (
-	AppEnv  = ""
+	// AppEnv holds application environment name.
+	AppEnv = ""
+	// AppPort holds port which use to run application.
 	AppPort = "8080"
 )
 
 func main() {
-	cli()
+	runApp()
 }
 
-// cli starts application from CLI environment.
-func cli() {
+// runApp starts application.
+func runApp() {
 	env := os.Getenv("APP_ENV")
 	if env != "" {
 		AppEnv = env
@@ -36,7 +36,7 @@ func cli() {
 	}
 
 	// Init the only one HTTP handler.
-	http.HandleFunc("/", Dump)
+	http.HandleFunc("/", dumpHandler)
 
 	addr := fmt.Sprintf(":%s", AppPort)
 	log.Printf("starting server on: %s\n", addr)
@@ -46,8 +46,8 @@ func cli() {
 	}
 }
 
-// Dump represents main HTTP handler.
-func Dump(w http.ResponseWriter, r *http.Request) {
+// dumpHandler represents main HTTP handler.
+func dumpHandler(w http.ResponseWriter, r *http.Request) {
 	// Get HTTP dump for current request.
 	dump, err := httputil.DumpRequest(r, true)
 	if err != nil {
