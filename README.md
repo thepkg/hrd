@@ -7,3 +7,13 @@ hrd
 [![Maintainability](https://api.codeclimate.com/v1/badges/1d9d3d6acf37cde6e37e/maintainability)](https://codeclimate.com/github/cn007b/hrd/maintainability)
 
 hrd - HTTP Request Dump.
+
+## Usage
+
+````sh
+# basic app
+docker pull ghcr.io/thepkg/hrd:v1.1.4
+
+# with ENV dump
+docker pull ghcr.io/thepkg/hrd:v1.1.5
+````

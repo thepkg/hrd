@@ -10,8 +10,10 @@ import (
 )
 
 const (
-	// header holds header delimiter, just to separate output data.
-	header = "===============[ HTTP REQUEST ]==============="
+	// header1 holds ENV header delimiter, just to separate output data.
+	header1 = "===============[     ENV      ]==============="
+	// header2 holds HTTP header delimiter, just to separate output data.
+	header2 = "===============[ HTTP REQUEST ]==============="
 )
 
 var (
@@ -49,20 +51,36 @@ func runApp() {
 
 // dumpHandler represents main HTTP handler.
 func dumpHandler(w http.ResponseWriter, r *http.Request) {
+	// Get ENV dump for current environment.
+	envDump := dumpEnv()
+
 	// Get HTTP dump for current request.
-	dump, err := httputil.DumpRequest(r, true)
+	httpDump, err := httputil.DumpRequest(r, true)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
 	}
 
+	dump := fmt.Sprintf("%s \n\n %s \n\n %s \n\n %s", header1, envDump, header2, httpDump)
+
 	// Log HTTP dump just for local environment.
 	if AppEnv == "local" {
-		log.Printf("[%s] \n\n%s", header, dump)
+		log.Print(dump)
 	}
 
 	// Print HTTP dump to response.
-	if _, err := fmt.Fprintf(w, "%s \n\n%s", header, dump); err != nil {
+	if _, err := fmt.Fprint(w, dump); err != nil {
 		log.Printf("failed to print header, error: %#v\n", err)
 	}
+}
+
+// dumpEnv returns ENV dump.
+func dumpEnv() string {
+	dump := ""
+
+	for _, e := range os.Environ() {
+		dump += e + "\n"
+	}
+
+	return dump
 }
