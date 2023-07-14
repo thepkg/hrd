@@ -24,3 +24,10 @@ Run docker container:
 ````sh
 docker run -it -p 8080:8080 ghcr.io/thepkg/hrd:v1.1.5
 ````
+
+Send request:
+````sh
+open "http://localhost:8080?foo=bar"
+
+curl -X POST "http://localhost:8080" -d "foo=bar"
+````
