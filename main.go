@@ -7,13 +7,14 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
+	"strings"
 )
 
 const (
-	// header1 holds ENV header delimiter, just to separate output data.
-	header1 = "===============[     ENV      ]==============="
-	// header2 holds HTTP header delimiter, just to separate output data.
-	header2 = "===============[ HTTP REQUEST ]==============="
+	// headerENV holds ENV header delimiter, just to separate output data.
+	headerENV = "===============[     ENV      ]==============="
+	// headerHTTP holds HTTP header delimiter, just to separate output data.
+	headerHTTP = "===============[ HTTP REQUEST ]==============="
 )
 
 var (
@@ -21,6 +22,8 @@ var (
 	AppEnv = ""
 	// AppPort holds port which use to run application.
 	AppPort = "8080"
+	// AppWithEnv holds flag whether to dump environment variables.
+	AppWithEnv = false
 )
 
 func main() {
@@ -37,16 +40,27 @@ func runApp() {
 	if port != "" {
 		AppPort = port
 	}
+	withEnv := os.Getenv("APP_WITH_ENV")
+	if strings.ToLower(withEnv) == "true" {
+		AppWithEnv = true
+	}
 
 	// Init the only one HTTP handler.
-	http.HandleFunc("/", dumpHandler)
+	http.Handle("/", mainMiddleware(http.HandlerFunc(dumpHandler)))
 
 	addr := fmt.Sprintf(":%s", AppPort)
-	log.Printf("starting server on: %s\n", addr)
+	log.Printf("Starting server on: %s\n", addr)
 	err := http.ListenAndServe(addr, nil)
 	if err != nil {
-		log.Printf("failed to ListenAndServe, error: %#v\n", err)
+		log.Printf("Failed to ListenAndServe, error: %#v\n", err)
 	}
+}
+
+// mainMiddleware represents main HTTP middleware.
+func mainMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+	})
 }
 
 // dumpHandler represents main HTTP handler.
@@ -61,14 +75,20 @@ func dumpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dump := fmt.Sprintf("%s \n\n %s \n\n %s \n\n %s", header1, envDump, header2, httpDump)
+	dump := ""
+	// Add ENV data into dump.
+	if AppWithEnv {
+		dump += fmt.Sprintf("%s\n\n%s\n\n", headerENV, envDump)
+	}
+	// Add HTTP data into dump.
+	dump += fmt.Sprintf("%s\n\n%s\n\n", headerHTTP, httpDump)
 
 	// Log HTTP dump just for local environment.
 	if AppEnv == "local" {
 		log.Print(dump)
 	}
 
-	// Print HTTP dump to response.
+	// Print dump to response.
 	if _, err := fmt.Fprint(w, dump); err != nil {
 		log.Printf("failed to print header, error: %#v\n", err)
 	}

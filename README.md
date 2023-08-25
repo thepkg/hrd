@@ -24,7 +24,11 @@ docker pull ghcr.io/thepkg/hrd:v1.1.5
 
 Run docker container:
 ````sh
-docker run -it -p 8080:8080 ghcr.io/thepkg/hrd:v1.1.5
+# basic app
+docker run -it -p 8080:8080 ghcr.io/thepkg/hrd:v1.1.6
+
+# with ENV dump
+docker run -it -p 8080:8080 -e APP_WITH_ENV=true ghcr.io/thepkg/hrd:v1.1.6
 ````
 
 Send request:
